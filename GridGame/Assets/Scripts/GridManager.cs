@@ -6,8 +6,8 @@ public class GridManager : MonoBehaviour
 {
     [SerializeField] private GameObject _tilePrefab;
 
-    [SerializeField] private int _rows = 8;
-    [SerializeField] private int _columns = 8;
+    [SerializeField] public int _rows = 4;
+    [SerializeField] public int _columns = 4;
     [SerializeField] private Vector2 _tileSize = Vector2.one;
     [SerializeField] private Vector2 _tilePadding = new Vector2(0.1f, 0.1f);
     
