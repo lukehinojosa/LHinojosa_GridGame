@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class GridMovement : MonoBehaviour
 {
-    [SerializeField] private GridManager _gridManager;
-    [SerializeField] private Vector2Int _gridPos = Vector2Int.zero;
+    private GridManager _gridManager;
+    [SerializeField] public Vector2Int _gridPos;
     
     void Start()
     {
+        _gridManager = FindObjectOfType<GridManager>();
     }
 
     // Update is called once per frame
