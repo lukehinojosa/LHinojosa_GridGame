@@ -188,7 +188,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gridManager: {fileID: 392706581}
   _objectTwo: {fileID: 34523833227198286, guid: 4b84c0ccd6e4b9d488f510e584a4b59d, type: 3}
-  _objectFour: {fileID: 34523833227198286, guid: 4b84c0ccd6e4b9d488f510e584a4b59d, type: 3}
+  _objectFour: {fileID: 34523833227198286, guid: d4858e804c13f4d439e98a9fa788470d, type: 3}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
