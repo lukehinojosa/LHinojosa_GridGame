@@ -17,16 +17,14 @@ public class GameManager : MonoBehaviour
         _objects = new GameObject[_gridManager._rows][];
         for (int i = 0; i < _gridManager._rows; i++)
             _objects[i] = new GameObject[_gridManager._columns];
+        
+        SpawnTile();
+        SpawnTile();
     }
 
     void Update()
     {
         MoveInput();
-        
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            SpawnTile();
-        }
     }
 
     public void SpawnTile()
@@ -56,18 +54,24 @@ public class GameManager : MonoBehaviour
     
     void MoveInput()
     {
+        bool moved = false;
         if (Input.GetKeyDown(KeyCode.LeftArrow))
-            Move(KeyCode.LeftArrow);
+            moved = Move(KeyCode.LeftArrow);
         else if (Input.GetKeyDown(KeyCode.RightArrow))
-            Move(KeyCode.RightArrow);
+            moved = Move(KeyCode.RightArrow);
         else if (Input.GetKeyDown(KeyCode.DownArrow))
-            Move(KeyCode.DownArrow);
+            moved = Move(KeyCode.DownArrow);
         else if (Input.GetKeyDown(KeyCode.UpArrow))
-            Move(KeyCode.UpArrow);
+            moved = Move(KeyCode.UpArrow);
+        
+        if (moved)
+            SpawnTile();
     }
 
-    void Move(KeyCode direction)
+    bool Move(KeyCode direction)
     {
+        bool moved = false;
+        
         int addNumRow = 0;
         int addNumCol = 0;
         int startingPosition = 0;
@@ -151,6 +155,7 @@ public class GameManager : MonoBehaviour
                         if (_objects[row + addNumRow][column + addNumCol] == null)
                         {
                             blocksMoved = true;
+                            moved = true;
                             MoveBlockToBlank(row, column, addNumRow, addNumCol);
                         }
                         else if (!_objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>()._combined &&
@@ -158,21 +163,21 @@ public class GameManager : MonoBehaviour
                                  _objects[row][column].GetComponent<BlockObject>().GetBlockNumber())
                         {
                             blocksMoved = true;
+                            moved = true;
                             _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>()._combined = true;
                             Combine(row, column, addNumRow, addNumCol);
                         }
                     }
-
-                    if (size >= insideMax)
-                    {
-                        for (int i = 0; i < _gridManager._rows; i++)
-                            for (int j = 0; j < _gridManager._columns; j++)
-                                if (_objects[i][j] != null)
-                                    _objects[i][j].GetComponent<BlockObject>()._combined = false;
-                    }
                 }
             }
+            
+            for (int i = 0; i < _gridManager._rows; i++)
+                for (int j = 0; j < _gridManager._columns; j++)
+                    if (_objects[i][j] != null)
+                        _objects[i][j].GetComponent<BlockObject>()._combined = false;
         }
+        
+        return moved;
     }
     
     void MoveBlockToBlank(int row, int column, int addNumRow, int addNumCol)
