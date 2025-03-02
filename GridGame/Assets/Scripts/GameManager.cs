@@ -72,15 +72,32 @@ public class GameManager : MonoBehaviour
         {
             case KeyCode.LeftArrow:
             {
-                CaseLeft();
-
+                CaseHorizontal(direction);
+                break;
+            }
+            case KeyCode.RightArrow:
+            {
+                CaseHorizontal(direction);
                 break;
             }
         }
     }
 
-    void CaseLeft()
+    void CaseHorizontal(KeyCode direction)
     {
+        int addNum = 0;
+        int startingColumn = 0;
+        if (direction == KeyCode.LeftArrow)
+        {
+            addNum = -1;
+            startingColumn = 1;
+        }
+        else if (direction == KeyCode.RightArrow)
+        {
+            addNum = 1;
+            startingColumn = _gridManager._columns - 2;
+        }
+        
         for (int row = 0; row < _gridManager._rows; row++)
         {
             bool blocksMoved = true;
@@ -88,46 +105,51 @@ public class GameManager : MonoBehaviour
             while (blocksMoved)
             {
                 blocksMoved = false;
-                
-                for (int column = 1; column < _gridManager._columns; column++)
+
+                int size = 1;
+                for (int column = startingColumn; size < _gridManager._columns; column -= addNum)
                 {
+                    size++;
+                    
                     if (_objects[row][column] != null)
                     {
-                        if (_objects[row][column - 1] == null)
+                        if (_objects[row][column + addNum] == null)
                         {
                             blocksMoved = true;
-                            MoveBlockToLeftBlank(row, column);
+                            MoveBlockToBlankHorizontal(row, column, addNum);
                         }
-                        else if (!_objects[row][column - 1].GetComponent<BlockObject>()._combined &&
-                                 _objects[row][column - 1].GetComponent<BlockObject>().GetBlockNumber() ==
+                        else if (!_objects[row][column + addNum].GetComponent<BlockObject>()._combined &&
+                                 _objects[row][column + addNum].GetComponent<BlockObject>().GetBlockNumber() ==
                                  _objects[row][column].GetComponent<BlockObject>().GetBlockNumber())
                         {
                             blocksMoved = true;
-                            _objects[row][column - 1].GetComponent<BlockObject>()._combined = true;
-                            CombineRightWithLeft(row, column);
+                            _objects[row][column + addNum].GetComponent<BlockObject>()._combined = true;
+                            CombineHorizontal(row, column, addNum);
                         }
                     }
                 }
             }
+            
+            //Reset all blocks in a row combined state to false
             for (int column = 0; column < _gridManager._columns - 1; column++)
                 if (_objects[row][column] != null)
                     _objects[row][column].GetComponent<BlockObject>()._combined = false;
         }
     }
     
-    void MoveBlockToLeftBlank(int row, int column)
+    void MoveBlockToBlankHorizontal(int row, int column, int addNum)
     {
-        _objects[row][column - 1] = _objects[row][column];
-        _objects[row][column - 1].GetComponent<BlockObject>()._gridPos.x--;
+        _objects[row][column + addNum] = _objects[row][column];
+        _objects[row][column + addNum].GetComponent<BlockObject>()._gridPos.x += addNum;
 
-        _objects[row][column - 1].GetComponent<BlockObject>().UpdatePosition();
+        _objects[row][column + addNum].GetComponent<BlockObject>().UpdatePosition();
         _objects[row][column] = null;
     }
     
-    void CombineRightWithLeft(int row, int column)
+    void CombineHorizontal(int row, int column, int addNum)
     {
-        _objects[row][column - 1].GetComponent<BlockObject>().DoubleNumber();
-        _score += _objects[row][column - 1].GetComponent<BlockObject>().GetBlockNumber();
+        _objects[row][column + addNum].GetComponent<BlockObject>().DoubleNumber();
+        _score += _objects[row][column + addNum].GetComponent<BlockObject>().GetBlockNumber();
         Destroy(_objects[row][column]);
         _objects[row][column] = null; //Destroy is not quick enough
         _objectCount--;
