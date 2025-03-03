@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class GameManager : MonoBehaviour
     private int _objectCount = 0;
     private Vector3 _instantiatePosition = new Vector3(50f, 20f, 0f);
     private int _score = 0;
+    [SerializeField] private TextMeshProUGUI _scoreText;
 
     void Start()
     {
@@ -196,9 +198,15 @@ public class GameManager : MonoBehaviour
     void Combine(int row, int column, int addNumRow, int addNumCol)
     {
         _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().DoubleNumber();
-        _score += _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().GetBlockNumber();
+        AddScore(_objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().GetBlockNumber());
         Destroy(_objects[row][column]);
         _objects[row][column] = null; //Destroy is not quick enough
         _objectCount--;
+    }
+
+    void AddScore(int num)
+    {
+        _score += num;
+        _scoreText.text = _score.ToString();
     }
 }

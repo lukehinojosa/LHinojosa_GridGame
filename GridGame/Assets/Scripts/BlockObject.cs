@@ -10,6 +10,8 @@ public class BlockObject : MonoBehaviour
     [SerializeField] private int _blockNumber = 2;
     private TextMeshProUGUI _blockNumberText;
     public bool _combined;
+    private Vector3 _newPosition;
+    private float _moveSpeed = 5f;
 
     public int GetBlockNumber()
     {
@@ -18,6 +20,7 @@ public class BlockObject : MonoBehaviour
     
     void Start()
     {
+        _newPosition = transform.position;
         _gridManager = FindObjectOfType<GridManager>();
         
         _blockNumberText = GetComponentInChildren<Canvas>().gameObject.GetComponentInChildren<TextMeshProUGUI>();
@@ -25,14 +28,21 @@ public class BlockObject : MonoBehaviour
         _blockNumberText.text = _blockNumber.ToString();
 
         UpdatePosition();
+        transform.position = _newPosition;
+    }
+
+    void Update()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, _newPosition, _moveSpeed * Time.deltaTime);
     }
 
     public void UpdatePosition()
     {
+        transform.position = _newPosition;
         GameObject tile = _gridManager.GetTile(_gridPos.x, _gridPos.y);
         
         //Get worldspace position to match current tile
-        transform.position = tile.transform.position;
+        _newPosition = tile.transform.position;
     }
 
     public void DoubleNumber()
