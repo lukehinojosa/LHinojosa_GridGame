@@ -162,6 +162,7 @@ public class GameManager : MonoBehaviour
                             MoveBlockToBlank(row, column, addNumRow, addNumCol);
                         }
                         else if (!_objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>()._combined &&
+                                 !_objects[row][column].GetComponent<BlockObject>()._combined &&
                                  _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().GetBlockNumber() ==
                                  _objects[row][column].GetComponent<BlockObject>().GetBlockNumber())
                         {
