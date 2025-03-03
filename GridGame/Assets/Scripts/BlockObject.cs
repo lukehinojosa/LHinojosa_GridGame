@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -59,15 +60,17 @@ public class BlockObject : MonoBehaviour
         DoScaleAnimation();
     }
 
+    private void OnDestroy()
+    {
+        _moveTween.Kill();
+    }
+
     void Update()
     {
         transform.position = Vector3.MoveTowards(transform.position, _newPosition, _moveSpeed * Time.deltaTime);
 
         if (_destroy && transform.position == _newPosition)
-        {
-            _moveTween.Kill();
             Destroy(gameObject);
-        }
     }
 
     public void DoScaleAnimation()
