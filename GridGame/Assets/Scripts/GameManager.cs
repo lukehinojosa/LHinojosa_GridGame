@@ -13,6 +13,9 @@ public class GameManager : MonoBehaviour
     private Vector3 _instantiatePosition = new Vector3(50f, 20f, 0f);
     private int _score = 0;
     [SerializeField] private TextMeshProUGUI _scoreText;
+    private float _delayTimer = 0f;
+    private float _delayTime = 0.3f;
+    private bool _moved = true;
 
     void Start()
     {
@@ -20,8 +23,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < _gridManager._rows; i++)
             _objects[i] = new GameObject[_gridManager._columns];
         
-        SpawnTile();
-        SpawnTile();
+        SpawnBlock();
     }
 
     void Update()
@@ -29,7 +31,7 @@ public class GameManager : MonoBehaviour
         MoveInput();
     }
 
-    public void SpawnTile()
+    public void SpawnBlock()
     {
         if (_objectCount < _gridManager._rows * _gridManager._columns)
         {
@@ -57,18 +59,28 @@ public class GameManager : MonoBehaviour
     
     void MoveInput()
     {
-        bool moved = false;
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-            moved = Move(KeyCode.LeftArrow);
-        else if (Input.GetKeyDown(KeyCode.RightArrow))
-            moved = Move(KeyCode.RightArrow);
-        else if (Input.GetKeyDown(KeyCode.DownArrow))
-            moved = Move(KeyCode.DownArrow);
-        else if (Input.GetKeyDown(KeyCode.UpArrow))
-            moved = Move(KeyCode.UpArrow);
-        
-        if (moved)
-            SpawnTile();
+        if (_delayTimer <= 0f)
+        {
+            if (_moved)
+            {
+                SpawnBlock();
+                _moved = false;
+            }
+
+            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
+                _moved = Move(KeyCode.LeftArrow);
+            else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
+                _moved = Move(KeyCode.RightArrow);
+            else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
+                _moved = Move(KeyCode.DownArrow);
+            else if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+                _moved = Move(KeyCode.UpArrow);
+            
+            if (_moved)
+                _delayTimer = _delayTime;
+        }
+        else
+            _delayTimer -= Time.deltaTime;
     }
 
     bool Move(KeyCode direction)

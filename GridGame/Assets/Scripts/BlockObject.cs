@@ -11,7 +11,7 @@ public class BlockObject : MonoBehaviour
     private TextMeshProUGUI _blockNumberText;
     public bool _combined;
     public Vector3 _newPosition;
-    private float _moveSpeed = 10f;
+    private float _moveSpeed = 15f;
     public bool _destroy = false;
 
     public int GetBlockNumber()
