@@ -49,6 +49,7 @@ public class GameManager : MonoBehaviour
 
             BlockObject bo = block.GetComponent<BlockObject>();
             bo._gridPos = new Vector2Int(randomColumn, randomRow);
+            bo.transform.position = bo.ConvertGridToWorld(bo._gridPos);
             _objects[randomRow][randomColumn] = block;
             _objectCount++;
         }
@@ -197,6 +198,7 @@ public class GameManager : MonoBehaviour
     
     void Combine(int row, int column, int addNumRow, int addNumCol)
     {
+        MoveAnimation(_objects[row][column].transform.position, _objects[row + addNumRow][column + addNumCol].transform.position, _objects[row][column].GetComponent<BlockObject>().GetBlockNumber());
         _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().DoubleNumber();
         AddScore(_objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().GetBlockNumber());
         Destroy(_objects[row][column]);
@@ -208,5 +210,14 @@ public class GameManager : MonoBehaviour
     {
         _score += num;
         _scoreText.text = _score.ToString();
+    }
+
+    private void MoveAnimation(Vector3 startPos, Vector3 endPos, int blockNumber)
+    {
+        GameObject block = Instantiate(_objectTwo, startPos, Quaternion.identity);
+        BlockObject bo = block.GetComponent<BlockObject>();
+        bo.SetNumber(blockNumber);
+        bo._newPosition = endPos;
+        bo._destroy = true;
     }
 }
