@@ -29,6 +29,7 @@ public class BlockObject : MonoBehaviour
     private Color _color2048 = new Color32(238,194,46,255);
     private Color _color4096 = new Color32(254, 61, 62, 255);
     private float _targetScale = 0.5f;
+    private Tween _scaleTween;
     private Tween _moveTween;
 
     public int GetBlockNumber()
@@ -50,43 +51,49 @@ public class BlockObject : MonoBehaviour
         //Immediately assigns their position to gridpos if they aren't an animation
         if (!_destroy)
         {
-            _newPosition = transform.position;
-            UpdatePosition();
+            _newPosition = ConvertGridToWorld(_gridPos);
             transform.position = _newPosition;
         }
+        else
+            ScaleAnimation();
         
         UpdateColor();
-
-        DoScaleAnimation();
     }
 
     private void OnDestroy()
     {
+        _scaleTween.Kill();
         _moveTween.Kill();
     }
 
     void Update()
     {
-        transform.position = Vector3.MoveTowards(transform.position, _newPosition, _moveSpeed * Time.deltaTime);
+        //transform.position = Vector3.MoveTowards(transform.position, _newPosition, _moveSpeed * Time.deltaTime);
+        MoveAnimation();
 
         if (_destroy && transform.position == _newPosition)
             Destroy(gameObject);
     }
 
-    public void DoScaleAnimation()
+    public void ScaleAnimation()
     {
-        if (_moveTween != null && _moveTween.IsActive())
+        if (_scaleTween != null && _scaleTween.IsActive())
             return;
 
         Sequence seq = DOTween.Sequence();
         seq.Append(transform.DOScale(_targetScale, 0.075f).SetEase(Ease.Linear));
         seq.Append(transform.DOScale(1f, 0.075f).SetEase(Ease.Linear));
-        _moveTween = seq;
+        _scaleTween = seq;
     }
-
-    public void UpdatePosition()
+    
+    private void MoveAnimation()
     {
-        _newPosition = ConvertGridToWorld(_gridPos);
+        if (_moveTween != null && _moveTween.IsActive())
+            return;
+
+        Sequence seq = DOTween.Sequence();
+        seq.Append(transform.DOMove(_newPosition, 0.15f).SetEase(Ease.OutBack));
+        _moveTween = seq;
     }
 
     public Vector3 ConvertGridToWorld(Vector2Int grid)

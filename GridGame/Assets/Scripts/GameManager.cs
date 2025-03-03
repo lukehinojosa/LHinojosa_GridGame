@@ -202,12 +202,14 @@ public class GameManager : MonoBehaviour
     {
         _objects[row + addNumRow][column + addNumCol] = _objects[row][column];
         
+        BlockObject bo = _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>();
+        
         if (addNumRow != 0)
-            _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>()._gridPos.y += addNumRow;
+            bo._gridPos.y += addNumRow;
         else
-            _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>()._gridPos.x += addNumCol;
+            bo._gridPos.x += addNumCol;
 
-        _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().UpdatePosition();
+        bo._newPosition = bo.ConvertGridToWorld(bo._gridPos);
         _objects[row][column] = null;
     }
     
@@ -215,7 +217,7 @@ public class GameManager : MonoBehaviour
     {
         MoveAnimation(_objects[row][column].transform.position, _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>()._gridPos, _objects[row][column].GetComponent<BlockObject>().GetBlockNumber());
         _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().DoubleNumber();
-        _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().DoScaleAnimation();
+        _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().ScaleAnimation();
         AddScore(_objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().GetBlockNumber());
         Destroy(_objects[row][column]);
         _objects[row][column] = null; //Destroy is not quick enough
