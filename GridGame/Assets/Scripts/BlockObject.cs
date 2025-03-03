@@ -11,7 +11,7 @@ public class BlockObject : MonoBehaviour
     private TextMeshProUGUI _blockNumberText;
     public bool _combined;
     public Vector3 _newPosition;
-    private float _moveSpeed = 15f;
+    private float _moveSpeed = 20f;
     public bool _destroy = false;
     private SpriteRenderer _sR;
     private Color _color2 = new Color32(238, 228, 218, 255);

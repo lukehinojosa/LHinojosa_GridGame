@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class GameManager : MonoBehaviour
     private int _score = 0;
     [SerializeField] private TextMeshProUGUI _scoreText;
     private float _delayTimer = 0f;
-    private float _delayTime = 0.3f;
+    private float _delayTime = 0.15f;
     private bool _moved = true;
 
     void Start()
@@ -232,5 +233,10 @@ public class GameManager : MonoBehaviour
         bo.SetNumber(blockNumber);
         bo._newPosition = bo.ConvertGridToWorld(endPos);
         bo._destroy = true;
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
