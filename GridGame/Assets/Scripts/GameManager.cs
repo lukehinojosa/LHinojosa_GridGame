@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using DG.Tweening;
 
 public class GameManager : MonoBehaviour
 {
@@ -214,6 +215,7 @@ public class GameManager : MonoBehaviour
     {
         MoveAnimation(_objects[row][column].transform.position, _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>()._gridPos, _objects[row][column].GetComponent<BlockObject>().GetBlockNumber());
         _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().DoubleNumber();
+        _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().DoScaleAnimation();
         AddScore(_objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().GetBlockNumber());
         Destroy(_objects[row][column]);
         _objects[row][column] = null; //Destroy is not quick enough

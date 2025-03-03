@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using DG.Tweening;
 
 public class BlockObject : MonoBehaviour
 {
@@ -26,6 +27,8 @@ public class BlockObject : MonoBehaviour
     private Color _color1024 = new Color32(238,199,68,255);
     private Color _color2048 = new Color32(238,194,46,255);
     private Color _color4096 = new Color32(254, 61, 62, 255);
+    private float _targetScale = 0.5f;
+    private Tween _moveTween;
 
     public int GetBlockNumber()
     {
@@ -52,14 +55,30 @@ public class BlockObject : MonoBehaviour
         }
         
         UpdateColor();
+
+        DoScaleAnimation();
     }
 
     void Update()
     {
         transform.position = Vector3.MoveTowards(transform.position, _newPosition, _moveSpeed * Time.deltaTime);
-        
+
         if (_destroy && transform.position == _newPosition)
+        {
+            _moveTween.Kill();
             Destroy(gameObject);
+        }
+    }
+
+    public void DoScaleAnimation()
+    {
+        if (_moveTween != null && _moveTween.IsActive())
+            return;
+
+        Sequence seq = DOTween.Sequence();
+        seq.Append(transform.DOScale(_targetScale, 0.075f).SetEase(Ease.Linear));
+        seq.Append(transform.DOScale(1f, 0.075f).SetEase(Ease.Linear));
+        _moveTween = seq;
     }
 
     public void UpdatePosition()
