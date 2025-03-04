@@ -18,6 +18,9 @@ public class GameManager : MonoBehaviour
     private float _delayTimer = 0f;
     private float _delayTime = 0.15f;
     private bool _moved = true;
+    private bool _movesLeft = true;
+    [SerializeField] private SpriteRenderer _loseScreen;
+    private Tween _fadeTween;
 
     void Start()
     {
@@ -27,10 +30,32 @@ public class GameManager : MonoBehaviour
         
         SpawnBlock();
     }
+    
+    private void OnDestroy()
+    {
+        _fadeTween.Kill();
+    }
 
     void Update()
     {
-        MoveInput();
+        if (_movesLeft)
+        {
+            MoveInput();
+            CheckForMoves();
+        }
+        else
+            FadeAnimation();
+    }
+
+    private void FadeAnimation()
+    {
+        if (_fadeTween != null && _fadeTween.IsActive())
+            return;
+
+        Sequence seq = DOTween.Sequence();
+        seq.Append(_loseScreen.DOFade(0.6f, 0.5f));
+        _scoreText.text = "GAME OVER : " + _score;
+        _fadeTween = seq;
     }
 
     public void SpawnBlock()
@@ -58,6 +83,11 @@ public class GameManager : MonoBehaviour
             _objectCount++;
         }
     }
+
+    private void CheckForMoves()
+    {
+        _movesLeft = MoveCheck(KeyCode.LeftArrow) || MoveCheck(KeyCode.RightArrow) || MoveCheck(KeyCode.UpArrow) || MoveCheck(KeyCode.DownArrow);
+    }
     
     void MoveInput()
     {
@@ -83,6 +113,98 @@ public class GameManager : MonoBehaviour
         }
         else
             _delayTimer -= Time.deltaTime;
+    }
+    
+    bool MoveCheck(KeyCode direction)
+    {
+        bool moved = false;
+        
+        int addNumRow = 0;
+        int addNumCol = 0;
+        int startingPosition = 0;
+        int outsideMax = 0;
+        int insideMax = 0;
+        bool horizontal = true;
+
+        switch (direction)
+        {
+            case KeyCode.LeftArrow:
+            {
+                addNumCol = -1;
+                startingPosition = 1;
+                outsideMax = _gridManager._rows;
+                insideMax = _gridManager._columns;
+                break;
+            }
+            case KeyCode.RightArrow:
+            {
+                addNumCol = 1;
+                startingPosition = _gridManager._columns - 2;
+                outsideMax = _gridManager._rows;
+                insideMax = _gridManager._columns;
+                break;
+            }
+            case KeyCode.DownArrow:
+            {
+                addNumRow = -1;
+                startingPosition = 1;
+                outsideMax = _gridManager._columns;
+                insideMax = _gridManager._rows;
+                horizontal = false;
+                break;
+            }
+            case KeyCode.UpArrow:
+            {
+                addNumRow = 1;
+                startingPosition = _gridManager._rows - 2;
+                outsideMax = _gridManager._columns;
+                insideMax = _gridManager._rows;
+                horizontal = false;
+                break;
+            }
+        }
+        
+        for (int outside = 0; outside < outsideMax; outside++)
+        {
+            int addNum;
+            if (horizontal)
+                addNum = addNumCol;
+            else
+                addNum = addNumRow;
+
+            int size = 1;
+            for (int inside = startingPosition; size < insideMax; inside -= addNum)
+            {
+                int row;
+                int column;
+
+                if (horizontal)
+                {
+                    row = outside;
+                    column = inside;
+                }
+                else
+                {
+                    row = inside;
+                    column = outside;
+                }
+                    
+                size++;
+                    
+                if (_objects[row][column] != null)
+                {
+                    if (_objects[row + addNumRow][column + addNumCol] == null)
+                        moved = true;
+                    else if (!_objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>()._combined &&
+                             !_objects[row][column].GetComponent<BlockObject>()._combined &&
+                             _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().GetBlockNumber() ==
+                             _objects[row][column].GetComponent<BlockObject>().GetBlockNumber())
+                        moved = true;
+                }
+            }
+        }
+        
+        return moved;
     }
 
     bool Move(KeyCode direction)
