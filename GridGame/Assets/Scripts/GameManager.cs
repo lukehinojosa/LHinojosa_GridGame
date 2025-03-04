@@ -21,6 +21,8 @@ public class GameManager : MonoBehaviour
     private bool _movesLeft = true;
     [SerializeField] private SpriteRenderer _loseScreen;
     private Tween _fadeTween;
+    private Vector2 _startTouchPosition;
+    private Vector2 _endTouchPosition;
 
     void Start()
     {
@@ -99,7 +101,11 @@ public class GameManager : MonoBehaviour
                 _moved = false;
             }
 
-            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
+            KeyCode direction = TouchControls();
+
+            if (direction != KeyCode.None)
+                _moved = Move(direction);
+            else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
                 _moved = Move(KeyCode.LeftArrow);
             else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
                 _moved = Move(KeyCode.RightArrow);
@@ -113,6 +119,39 @@ public class GameManager : MonoBehaviour
         }
         else
             _delayTimer -= Time.deltaTime;
+    }
+
+    private KeyCode TouchControls()
+    {
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+            _startTouchPosition = Input.GetTouch(0).position;
+        
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
+        {
+            _endTouchPosition = Input.GetTouch(0).position;
+
+            if (Mathf.Abs(_endTouchPosition.x - _startTouchPosition.x) >
+                Mathf.Abs(_endTouchPosition.y - _startTouchPosition.y))
+            {
+                if (_endTouchPosition.x < _startTouchPosition.x)
+                    return KeyCode.LeftArrow;
+                
+                if (_endTouchPosition.x > _startTouchPosition.x)
+                    return KeyCode.RightArrow;
+            }
+            
+            if (Mathf.Abs(_endTouchPosition.x - _startTouchPosition.x) <
+                Mathf.Abs(_endTouchPosition.y - _startTouchPosition.y))
+            {
+                if (_endTouchPosition.y < _startTouchPosition.y)
+                    return KeyCode.DownArrow;
+                
+                if (_endTouchPosition.y > _startTouchPosition.y)
+                    return KeyCode.UpArrow;
+            }
+        }
+
+        return KeyCode.None;
     }
     
     bool MoveCheck(KeyCode direction)
