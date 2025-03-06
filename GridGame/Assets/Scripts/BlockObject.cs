@@ -13,7 +13,7 @@ public class BlockObject : MonoBehaviour
     private TextMeshProUGUI _blockNumberText;
     public bool _combined;
     public Vector3 _newPosition;
-    private float _moveSpeed = 20f;
+    private float _moveSpeed = 0.15f;
     public bool _destroy = false;
     private SpriteRenderer _sR;
     private Color _color2 = new Color32(238, 228, 218, 255);
@@ -92,7 +92,7 @@ public class BlockObject : MonoBehaviour
             return;
 
         Sequence seq = DOTween.Sequence();
-        seq.Append(transform.DOMove(_newPosition, 0.15f).SetEase(Ease.OutBack));
+        seq.Append(transform.DOMove(_newPosition, _moveSpeed).SetEase(Ease.OutBack));
         _moveTween = seq;
     }
 

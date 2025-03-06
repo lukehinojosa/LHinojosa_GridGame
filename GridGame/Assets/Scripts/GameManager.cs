@@ -24,8 +24,28 @@ public class GameManager : MonoBehaviour
     private Vector2 _startTouchPosition;
     private Vector2 _endTouchPosition;
 
+    private Camera _camera;
+    private RectTransform _scoreRT;
+    private float _initialCameraSize;
+    private Vector2 _initialScorePosition;
+    [SerializeField] private Transform _wasd;
+    [SerializeField] private Transform _udlr;
+    private Vector3 _initialWASDPosition;
+    private Vector3 _initialUDLRPosition;
+    private float _vertCameraSize = 5;
+    private Vector2 _vertScorePosition = new Vector2(0f, -200f);
+    private Vector3 _vertWASDPosition = new Vector3(-1f, -3.5f, 0f);
+    private Vector3 _vertUDLRPosition = new Vector3(1f, -3.5f, 0f);
+
     void Start()
     {
+        _camera = Camera.main;
+        _initialCameraSize = _camera.orthographicSize;
+        _scoreRT = _scoreText.gameObject.GetComponent<RectTransform>();
+        _initialScorePosition = _scoreRT.anchoredPosition;
+        _initialWASDPosition = _wasd.position;
+        _initialUDLRPosition = _udlr.position;
+
         _objects = new GameObject[_gridManager._rows][];
         for (int i = 0; i < _gridManager._rows; i++)
             _objects[i] = new GameObject[_gridManager._columns];
@@ -40,6 +60,8 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        CheckScreenRotation();
+
         if (_movesLeft)
         {
             MoveInput();
@@ -47,6 +69,24 @@ public class GameManager : MonoBehaviour
         }
         else
             FadeAnimation();
+    }
+
+    private void CheckScreenRotation()
+    {
+        if (_camera.scaledPixelHeight > _camera.scaledPixelWidth)
+        {
+            _camera.orthographicSize = _vertCameraSize;
+            _scoreRT.anchoredPosition = _vertScorePosition;
+            _wasd.position = _vertWASDPosition;
+            _udlr.position = _vertUDLRPosition;
+        }
+        else
+        {
+            _camera.orthographicSize = _initialCameraSize;
+            _scoreRT.anchoredPosition = _initialScorePosition;
+            _wasd.position = _initialWASDPosition;
+            _udlr.position= _initialUDLRPosition;
+        }
     }
 
     private void FadeAnimation()
