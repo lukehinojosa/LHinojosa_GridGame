@@ -38,6 +38,8 @@ public class GameManager : MonoBehaviour
     private Vector3 _vertWASDPosition = new Vector3(-1f, -3.5f, 0f);
     private Vector3 _vertUDLRPosition = new Vector3(1f, -3.5f, 0f);
 
+    private float _highscore;
+
     private enum Direcs
     {
         Up, Down, Left, Right, None
@@ -57,6 +59,8 @@ public class GameManager : MonoBehaviour
             _objects[i] = new GameObject[_gridManager._columns];
         
         SpawnBlock();
+
+        _highscore = PlayerPrefs.GetFloat("Highscore", 0);
     }
     
     private void OnDestroy()
@@ -104,6 +108,7 @@ public class GameManager : MonoBehaviour
         Sequence seq = DOTween.Sequence();
         seq.Append(_loseScreen.DOFade(0.6f, 0.5f));
         _scoreText.text = "GAME OVER : " + _score;
+        PlayerPrefs.SetFloat("Highscore", _score);
         _fadeTween = seq;
     }
 
