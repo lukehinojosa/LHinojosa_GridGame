@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     private Vector3 _instantiatePosition = new Vector3(50f, 20f, 0f);
     private int _score = 0;
     [SerializeField] private TextMeshProUGUI _scoreText;
+    [SerializeField] private TextMeshProUGUI _highScoreText;
     private float _delayTimer = 0f;
     private float _delayTime = 0.15f;
     private bool _moved = true;
@@ -29,16 +30,8 @@ public class GameManager : MonoBehaviour
     private RectTransform _scoreRT;
     private float _initialCameraSize;
     private Vector2 _initialScorePosition;
-    [SerializeField] private Transform _wasd;
-    [SerializeField] private Transform _udlr;
-    private Vector3 _initialWASDPosition;
-    private Vector3 _initialUDLRPosition;
     private float _vertCameraSize = 5;
     private Vector2 _vertScorePosition = new Vector2(0f, -200f);
-    private Vector3 _vertWASDPosition = new Vector3(-1f, -3.5f, 0f);
-    private Vector3 _vertUDLRPosition = new Vector3(1f, -3.5f, 0f);
-
-    private float _highscore;
 
     private enum Direcs
     {
@@ -51,8 +44,6 @@ public class GameManager : MonoBehaviour
         _initialCameraSize = _camera.orthographicSize;
         _scoreRT = _scoreText.gameObject.GetComponent<RectTransform>();
         _initialScorePosition = _scoreRT.anchoredPosition;
-        _initialWASDPosition = _wasd.position;
-        _initialUDLRPosition = _udlr.position;
 
         _objects = new GameObject[_gridManager._rows][];
         for (int i = 0; i < _gridManager._rows; i++)
@@ -60,7 +51,7 @@ public class GameManager : MonoBehaviour
         
         SpawnBlock();
 
-        _highscore = PlayerPrefs.GetFloat("Highscore", 0);
+        _highScoreText.text = "High Score: " + PlayerPrefs.GetFloat("Highscore", 0);
     }
     
     private void OnDestroy()
@@ -88,15 +79,11 @@ public class GameManager : MonoBehaviour
         {
             _camera.orthographicSize = _vertCameraSize;
             _scoreRT.anchoredPosition = _vertScorePosition;
-            _wasd.position = _vertWASDPosition;
-            _udlr.position = _vertUDLRPosition;
         }
         else //Landscape
         {
             _camera.orthographicSize = _initialCameraSize;
             _scoreRT.anchoredPosition = _initialScorePosition;
-            _wasd.position = _initialWASDPosition;
-            _udlr.position= _initialUDLRPosition;
         }
     }
 
@@ -108,7 +95,13 @@ public class GameManager : MonoBehaviour
         Sequence seq = DOTween.Sequence();
         seq.Append(_loseScreen.DOFade(0.6f, 0.5f));
         _scoreText.text = "GAME OVER : " + _score;
-        PlayerPrefs.SetFloat("Highscore", _score);
+
+        if (_score > PlayerPrefs.GetFloat("Highscore", 0f))
+        {
+            PlayerPrefs.SetFloat("Highscore", _score);
+            _highScoreText.text = "High Score: " + _score;
+        }
+        
         _fadeTween = seq;
     }
 
