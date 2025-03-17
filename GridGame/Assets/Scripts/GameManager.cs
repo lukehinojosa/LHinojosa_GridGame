@@ -7,6 +7,7 @@ using DG.Tweening;
 
 public class GameManager : MonoBehaviour
 {
+    [Header("Prefabs")]
     [SerializeField] private GridManager _gridManager;
     [SerializeField] private GameObject _objectTwo;
     [SerializeField] private GameObject _objectFour;
@@ -36,6 +37,11 @@ public class GameManager : MonoBehaviour
     private Vector2 _vertScorePosition = new Vector2(0f, -200f);
     private Vector3 _vertWASDPosition = new Vector3(-1f, -3.5f, 0f);
     private Vector3 _vertUDLRPosition = new Vector3(1f, -3.5f, 0f);
+
+    private enum Direcs
+    {
+        Up, Down, Left, Right, None
+    }
 
     void Start()
     {
@@ -73,6 +79,7 @@ public class GameManager : MonoBehaviour
 
     private void CheckScreenRotation()
     {
+        //Portrait
         if (_camera.scaledPixelHeight > _camera.scaledPixelWidth)
         {
             _camera.orthographicSize = _vertCameraSize;
@@ -80,7 +87,7 @@ public class GameManager : MonoBehaviour
             _wasd.position = _vertWASDPosition;
             _udlr.position = _vertUDLRPosition;
         }
-        else
+        else //Landscape
         {
             _camera.orthographicSize = _initialCameraSize;
             _scoreRT.anchoredPosition = _initialScorePosition;
@@ -128,7 +135,7 @@ public class GameManager : MonoBehaviour
 
     private void CheckForMoves()
     {
-        _movesLeft = MoveCheck(KeyCode.LeftArrow) || MoveCheck(KeyCode.RightArrow) || MoveCheck(KeyCode.UpArrow) || MoveCheck(KeyCode.DownArrow);
+        _movesLeft = MoveCheck(Direcs.Left) || MoveCheck(Direcs.Right) || MoveCheck(Direcs.Up) || MoveCheck(Direcs.Down);
     }
     
     void MoveInput()
@@ -141,18 +148,18 @@ public class GameManager : MonoBehaviour
                 _moved = false;
             }
 
-            KeyCode direction = TouchControls();
+            Direcs direction = TouchControls();
 
-            if (direction != KeyCode.None)
+            if (direction != Direcs.None)
                 _moved = Move(direction);
-            else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
-                _moved = Move(KeyCode.LeftArrow);
-            else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
-                _moved = Move(KeyCode.RightArrow);
-            else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
-                _moved = Move(KeyCode.DownArrow);
-            else if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
-                _moved = Move(KeyCode.UpArrow);
+            else if (Input.GetButtonDown("Left"))
+                _moved = Move(Direcs.Left);
+            else if (Input.GetButtonDown("Right"))
+                _moved = Move(Direcs.Right);
+            else if (Input.GetButtonDown("Down"))
+                _moved = Move(Direcs.Down);
+            else if (Input.GetButtonDown("Up"))
+                _moved = Move(Direcs.Up);
             
             if (_moved)
                 _delayTimer = _delayTime;
@@ -161,7 +168,7 @@ public class GameManager : MonoBehaviour
             _delayTimer -= Time.deltaTime;
     }
 
-    private KeyCode TouchControls()
+    private Direcs TouchControls()
     {
         if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
             _startTouchPosition = Input.GetTouch(0).position;
@@ -174,27 +181,27 @@ public class GameManager : MonoBehaviour
                 Mathf.Abs(_endTouchPosition.y - _startTouchPosition.y))
             {
                 if (_endTouchPosition.x < _startTouchPosition.x)
-                    return KeyCode.LeftArrow;
+                    return Direcs.Left;
                 
                 if (_endTouchPosition.x > _startTouchPosition.x)
-                    return KeyCode.RightArrow;
+                    return Direcs.Right;
             }
             
             if (Mathf.Abs(_endTouchPosition.x - _startTouchPosition.x) <
                 Mathf.Abs(_endTouchPosition.y - _startTouchPosition.y))
             {
                 if (_endTouchPosition.y < _startTouchPosition.y)
-                    return KeyCode.DownArrow;
+                    return Direcs.Down;
                 
                 if (_endTouchPosition.y > _startTouchPosition.y)
-                    return KeyCode.UpArrow;
+                    return Direcs.Up;
             }
         }
 
-        return KeyCode.None;
+        return Direcs.None;
     }
     
-    bool MoveCheck(KeyCode direction)
+    bool MoveCheck(Direcs direction)
     {
         bool moved = false;
         
@@ -207,7 +214,7 @@ public class GameManager : MonoBehaviour
 
         switch (direction)
         {
-            case KeyCode.LeftArrow:
+            case Direcs.Left:
             {
                 addNumCol = -1;
                 startingPosition = 1;
@@ -215,7 +222,7 @@ public class GameManager : MonoBehaviour
                 insideMax = _gridManager._columns;
                 break;
             }
-            case KeyCode.RightArrow:
+            case Direcs.Right:
             {
                 addNumCol = 1;
                 startingPosition = _gridManager._columns - 2;
@@ -223,7 +230,7 @@ public class GameManager : MonoBehaviour
                 insideMax = _gridManager._columns;
                 break;
             }
-            case KeyCode.DownArrow:
+            case Direcs.Down:
             {
                 addNumRow = -1;
                 startingPosition = 1;
@@ -232,7 +239,7 @@ public class GameManager : MonoBehaviour
                 horizontal = false;
                 break;
             }
-            case KeyCode.UpArrow:
+            case Direcs.Up:
             {
                 addNumRow = 1;
                 startingPosition = _gridManager._rows - 2;
@@ -286,7 +293,7 @@ public class GameManager : MonoBehaviour
         return moved;
     }
 
-    bool Move(KeyCode direction)
+    bool Move(Direcs direction)
     {
         bool moved = false;
         
@@ -299,7 +306,7 @@ public class GameManager : MonoBehaviour
 
         switch (direction)
         {
-            case KeyCode.LeftArrow:
+            case Direcs.Left:
             {
                 addNumCol = -1;
                 startingPosition = 1;
@@ -307,7 +314,7 @@ public class GameManager : MonoBehaviour
                 insideMax = _gridManager._columns;
                 break;
             }
-            case KeyCode.RightArrow:
+            case Direcs.Right:
             {
                 addNumCol = 1;
                 startingPosition = _gridManager._columns - 2;
@@ -315,7 +322,7 @@ public class GameManager : MonoBehaviour
                 insideMax = _gridManager._columns;
                 break;
             }
-            case KeyCode.DownArrow:
+            case Direcs.Down:
             {
                 addNumRow = -1;
                 startingPosition = 1;
@@ -324,7 +331,7 @@ public class GameManager : MonoBehaviour
                 horizontal = false;
                 break;
             }
-            case KeyCode.UpArrow:
+            case Direcs.Up:
             {
                 addNumRow = 1;
                 startingPosition = _gridManager._rows - 2;
@@ -388,6 +395,7 @@ public class GameManager : MonoBehaviour
                         }
                     }
                 }
+
             }
             
             for (int i = 0; i < _gridManager._rows; i++)
