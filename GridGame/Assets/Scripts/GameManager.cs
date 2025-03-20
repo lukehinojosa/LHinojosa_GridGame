@@ -199,25 +199,33 @@ public class GameManager : MonoBehaviour
         return Direcs.None;
     }
     
+    /// <summary>
+    /// Checks if any blocks can move or merge in the given direction without modifying the grid.
+    /// This is used to determine if a move is possible before executing it.
+    /// </summary>
+    /// <param name="direction">The direction to check for possible moves (Left, Right, Up, or Down).</param>
+    /// <returns>Returns true if at least one block can move or merge; otherwise, returns false.</returns>
     bool MoveCheck(Direcs direction)
     {
-        bool moved = false;
+        bool moved = false; // Tracks if any move is possible
         
+        // Variables to control movement direction
         int addNumRow = 0;
         int addNumCol = 0;
-        int startingPosition = 0;
-        int outsideMax = 0;
-        int insideMax = 0;
-        bool horizontal = true;
-
+        int startingPosition = 0; // Determines where iteration begins for inside loop
+        int outsideMax = 0; // Maximum index for outer loop
+        int insideMax = 0; // Maximum index for inner loop
+        bool horizontal = true; // Determines if movement is horizontal or vertical
+        
+        // Set movement parameters based on direction
         switch (direction)
         {
             case Direcs.Left:
             {
-                addNumCol = -1;
-                startingPosition = 1;
-                outsideMax = _gridManager._rows;
-                insideMax = _gridManager._columns;
+                addNumCol = 1; // Move right (increase column index)
+                startingPosition = _gridManager._columns - 2; // Start from the second-last column
+                outsideMax = _gridManager._rows; // Iterate over all rows
+                insideMax = _gridManager._columns; // Iterate over columns
                 break;
             }
             case Direcs.Right:
@@ -230,38 +238,37 @@ public class GameManager : MonoBehaviour
             }
             case Direcs.Down:
             {
-                addNumRow = -1;
-                startingPosition = 1;
-                outsideMax = _gridManager._columns;
-                insideMax = _gridManager._rows;
-                horizontal = false;
+                addNumRow = -1; // Move downward (reduce row index)
+                startingPosition = 1; // Start from the second row
+                outsideMax = _gridManager._columns; // Iterate over columns
+                insideMax = _gridManager._rows; // Iterate over rows
+                horizontal = false; // Movement is vertical
                 break;
             }
             case Direcs.Up:
             {
-                addNumRow = 1;
-                startingPosition = _gridManager._rows - 2;
-                outsideMax = _gridManager._columns;
-                insideMax = _gridManager._rows;
-                horizontal = false;
+                addNumRow = 1; // Move upward (increase row index)
+                startingPosition = _gridManager._rows - 2; // Start from the second-last row
+                outsideMax = _gridManager._columns; // Iterate over columns
+                insideMax = _gridManager._rows; // Iterate over rows
+                horizontal = false; // Movement is vertical
                 break;
             }
         }
         
+        // Loop through each row/column based on movement direction
         for (int outside = 0; outside < outsideMax; outside++)
         {
-            int addNum;
-            if (horizontal)
-                addNum = addNumCol;
-            else
-                addNum = addNumRow;
+            // Determine movement direction for inner loop
+            int addNum = horizontal ? addNumCol : addNumRow;
 
             int size = 1;
             for (int inside = startingPosition; size < insideMax; inside -= addNum)
             {
                 int row;
                 int column;
-
+                
+                // Determine row and column indices based on movement direction
                 if (horizontal)
                 {
                     row = outside;
@@ -274,11 +281,14 @@ public class GameManager : MonoBehaviour
                 }
                     
                 size++;
-                    
+                
+                // Check if the current block is not empty
                 if (_objects[row][column] != null)
                 {
+                    // If the adjacent block in the movement direction is empty, a move is possible
                     if (_objects[row + addNumRow][column + addNumCol] == null)
                         moved = true;
+                    // If the adjacent block has the same number and both have not been combined yet, a merge, therefore a move, is possible
                     else if (!_objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>()._combined &&
                              !_objects[row][column].GetComponent<BlockObject>()._combined &&
                              _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().GetBlockNumber() ==
@@ -288,78 +298,85 @@ public class GameManager : MonoBehaviour
             }
         }
         
-        return moved;
+        return moved; // Return whether a move is possible
     }
-
+    
+    /// <summary>
+    /// Moves the blocks in the grid in the specified direction.
+    /// Blocks slide as far as possible and combine if they have the same value.
+    /// </summary>
+    /// <param name="direction">The direction in which to move the blocks (Left, Right, Up, or Down).</param>
+    /// <returns>Returns true if any blocks moved or merged; otherwise, returns false.</returns>
     bool Move(Direcs direction)
     {
-        bool moved = false;
+        bool moved = false; // Tracks if any block has moved
         
+        // Variables to control movement direction
         int addNumRow = 0;
         int addNumCol = 0;
-        int startingPosition = 0;
-        int outsideMax = 0;
-        int insideMax = 0;
-        bool horizontal = true;
-
+        int startingPosition = 0; // Determines where iteration begins for inside loop
+        int outsideMax = 0; // Maximum index for outer loop
+        int insideMax = 0; // Maximum index for inner loop
+        bool horizontal = true; // Determines if movement is horizontal or vertical
+        
+        // Set movement parameters based on direction
         switch (direction)
         {
             case Direcs.Left:
             {
-                addNumCol = -1;
-                startingPosition = 1;
-                outsideMax = _gridManager._rows;
-                insideMax = _gridManager._columns;
+                addNumCol = -1; // Move left (reduce column index)
+                startingPosition = 1; // Start from the second column
+                outsideMax = _gridManager._rows; // Iterate over all rows
+                insideMax = _gridManager._columns; // Iterate over columns
                 break;
             }
             case Direcs.Right:
             {
-                addNumCol = 1;
-                startingPosition = _gridManager._columns - 2;
-                outsideMax = _gridManager._rows;
-                insideMax = _gridManager._columns;
+                addNumCol = 1; // Move right (increase column index)
+                startingPosition = _gridManager._columns - 2; // Start from the second-to-last column
+                outsideMax = _gridManager._rows; // Iterate over all rows
+                insideMax = _gridManager._columns; // Iterate over columns
                 break;
             }
             case Direcs.Down:
             {
-                addNumRow = -1;
-                startingPosition = 1;
-                outsideMax = _gridManager._columns;
-                insideMax = _gridManager._rows;
-                horizontal = false;
+                addNumRow = -1; // Move Downward (reduce row index)
+                startingPosition = 1; // Start from the second row
+                outsideMax = _gridManager._columns; // Iterate over columns
+                insideMax = _gridManager._rows; // Iterate over rows
+                horizontal = false; // Movement is vertical
                 break;
             }
             case Direcs.Up:
             {
-                addNumRow = 1;
-                startingPosition = _gridManager._rows - 2;
-                outsideMax = _gridManager._columns;
-                insideMax = _gridManager._rows;
-                horizontal = false;
+                addNumRow = 1; // Move upward (increase row index)
+                startingPosition = _gridManager._rows - 2; // Start from the second-to-last row
+                outsideMax = _gridManager._columns; // Iterate over columns
+                insideMax = _gridManager._rows; // Iterate over rows
+                horizontal = false; // Movement is vertical
                 break;
             }
         }
         
+        // Loop through each row/column based on movement direction
         for (int outside = 0; outside < outsideMax; outside++)
         {
-            bool blocksMoved = true;
-
+            bool blocksMoved = true; // Tracks if any block has moved in the current iteration
+            
+            // Repeat the process while any block in moved
             while (blocksMoved)
             {
                 blocksMoved = false;
-
-                int addNum;
-                if (horizontal)
-                    addNum = addNumCol;
-                else
-                    addNum = addNumRow;
+                
+                // Determine movement direction for inner loop
+                int addNum = horizontal ? addNumCol : addNumRow;
 
                 int size = 1;
                 for (int inside = startingPosition; size < insideMax; inside -= addNum)
                 {
-                    int row;
-                    int column;
-
+                    int row, column;
+                    
+                    // Determine row and column indices based on movement direction
                     if (horizontal)
                     {
                         row = outside;
@@ -373,14 +390,17 @@ public class GameManager : MonoBehaviour
                     
                     size++;
                     
+                    // Check if the current block is not empty
                     if (_objects[row][column] != null)
                     {
+                        // If the adjacent block in the movement direction is empty, move the block
                         if (_objects[row + addNumRow][column + addNumCol] == null)
                         {
                             blocksMoved = true;
                             moved = true;
                             MoveBlockToBlank(row, column, addNumRow, addNumCol);
                         }
+                        // If the adjacent block has the same number and both have not been combined yet, merge them
                         else if (!_objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>()._combined &&
                                  !_objects[row][column].GetComponent<BlockObject>()._combined &&
                                  _objects[row + addNumRow][column + addNumCol].GetComponent<BlockObject>().GetBlockNumber() ==
@@ -396,13 +416,14 @@ public class GameManager : MonoBehaviour
 
             }
             
+            // Reset the "_combined" flag for all blocks after each move
             for (int i = 0; i < _gridManager._rows; i++)
                 for (int j = 0; j < _gridManager._columns; j++)
                     if (_objects[i][j] != null)
                         _objects[i][j].GetComponent<BlockObject>()._combined = false;
         }
         
-        return moved;
+        return moved; // Return whether any block was moved
     }
     
     void MoveBlockToBlank(int row, int column, int addNumRow, int addNumCol)
